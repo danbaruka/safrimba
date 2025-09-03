@@ -1,0 +1,72 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "QueryMsg",
+  "oneOf": [
+    {
+      "type": "object",
+      "required": [
+        "GetGroupInfo"
+      ],
+      "properties": {
+        "GetGroupInfo": {
+          "type": "object"
+        }
+      },
+      "additionalProperties": false
+    },
+    {
+      "type": "object",
+      "required": [
+        "GetMemberInfo"
+      ],
+      "properties": {
+        "GetMemberInfo": {
+          "type": "object",
+          "required": [
+            "addr"
+          ],
+          "properties": {
+            "addr": {
+              "type": "string"
+            }
+          }
+        }
+      },
+      "additionalProperties": false
+    },
+    {
+      "type": "object",
+      "required": [
+        "GetCycleInfo"
+      ],
+      "properties": {
+        "GetCycleInfo": {
+          "type": "object",
+          "required": [
+            "cycle"
+          ],
+          "properties": {
+            "cycle": {
+              "type": "integer",
+              "format": "uint32",
+              "minimum": 0.0
+            }
+          }
+        }
+      },
+      "additionalProperties": false
+    },
+    {
+      "type": "object",
+      "required": [
+        "GetDistributionCalendar"
+      ],
+      "properties": {
+        "GetDistributionCalendar": {
+          "type": "object"
+        }
+      },
+      "additionalProperties": false
+    }
+  ]
+}

@@ -1,7 +1,7 @@
 use cosmwasm_std::{entry_point, DepsMut, Env, MessageInfo, Response, StdResult, Deps, Binary, Addr, Uint128, Timestamp, BankMsg, Coin};
-use crate::msg::{InstantiateMsg, ExecuteMsg, QueryMsg, Action, Query as QueryAction};
+use crate::msg::{InstantiateMsg, ExecuteMsg, QueryMsg, Action};
 use crate::state::{TontineState, MemberProfile, DistributionMode, StartMode, StartConditionAuto};
-use crate::storage::{save_state, load_state, save_member_contribution, load_member_contribution, save_member_strikes, load_member_strikes};
+use crate::storage::{save_state, load_state, save_member_contribution, load_member_contribution};
 
 #[entry_point]
 pub fn instantiate(
@@ -335,8 +335,8 @@ pub fn query(
     msg: QueryMsg,
 ) -> StdResult<Binary> {
     let state = load_state(deps.storage)?;
-    match msg.query {
-        QueryAction::GetGroupInfo {} => {
+    match msg {
+        QueryMsg::GetGroupInfo {} => {
             let members: Vec<String> = state.members.iter().map(|a| a.to_string()).collect();
             let distribution_calendar: Vec<String> = state.distribution_calendar.iter().map(|a| a.to_string()).collect();
             let strikes: Vec<(String, u8)> = state.member_strikes.iter().map(|(addr, s)| (addr.to_string(), *s)).collect();
@@ -409,7 +409,7 @@ pub fn query(
             let resp = serde_json_wasm::to_vec(&dto).map_err(|e| cosmwasm_std::StdError::generic_err(e.to_string()))?;
             Ok(Binary(resp))
         }
-        QueryAction::GetMemberInfo { addr } => {
+        QueryMsg::GetMemberInfo { addr } => {
             let addr = deps.api.addr_validate(&addr)?;
             let profile_owned: Option<MemberProfile> = state.member_profiles.get(&addr).cloned();
             let strikes = state.member_strikes.get(&addr).cloned().unwrap_or(0);
@@ -425,7 +425,7 @@ pub fn query(
             let resp = serde_json_wasm::to_vec(&dto).map_err(|e| cosmwasm_std::StdError::generic_err(e.to_string()))?;
             Ok(Binary(resp))
         }
-        QueryAction::GetCycleInfo { cycle } => {
+        QueryMsg::GetCycleInfo { cycle } => {
             let recipient = state.distribution_calendar.get((cycle.saturating_sub(1)) as usize).cloned();
             let mut total = Uint128::zero();
             for member in &state.members {
@@ -439,7 +439,7 @@ pub fn query(
             let resp = serde_json_wasm::to_vec(&dto).map_err(|e| cosmwasm_std::StdError::generic_err(e.to_string()))?;
             Ok(Binary(resp))
         }
-        QueryAction::GetDistributionCalendar {} => {
+        QueryMsg::GetDistributionCalendar {} => {
             let cal: Vec<String> = state.distribution_calendar.iter().map(|a| a.to_string()).collect();
             let resp = serde_json_wasm::to_vec(&cal).map_err(|e| cosmwasm_std::StdError::generic_err(e.to_string()))?;
             Ok(Binary(resp))

@@ -7,6 +7,10 @@ description = "Safrimba Tontine Smart Contract for Safrochain (CosmWasm)"
 [lib]
 crate-type = ["cdylib", "rlib"]
 
+[[bin]]
+name = "schema"
+path = "src/schema.rs"
+
 
 [dependencies]
 cosmwasm-std = "0.16.0"
@@ -16,3 +20,6 @@ thiserror = "1.0"
 # cw-storage-plus = "0.16.0"
 serde-json-wasm = "0.5.2"
 schemars = "0.8"
+
+[dev-dependencies]
+cw-multi-test = "0.16.0"
