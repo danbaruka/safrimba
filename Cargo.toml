@@ -1,0 +1,18 @@
+[package]
+name = "safrimba"
+version = "0.1.0"
+edition = "2021"
+description = "Safrimba Tontine Smart Contract for Safrochain (CosmWasm)"
+
+[lib]
+crate-type = ["cdylib", "rlib"]
+
+
+[dependencies]
+cosmwasm-std = "0.16.0"
+cosmwasm-schema = "0.16.0"
+serde = { version = "1.0", features = ["derive"] }
+thiserror = "1.0"
+# cw-storage-plus = "0.16.0"
+serde-json-wasm = "0.5.2"
+schemars = "0.8"

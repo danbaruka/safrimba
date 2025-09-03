@@ -1,0 +1,9 @@
+[target.wasm32-unknown-unknown]
+rustflags = ["-C", "link-arg=-s"]
+
+[profile.release]
+opt-level = 3
+debug = false
+lto = true
+codegen-units = 1
+panic = "abort"
