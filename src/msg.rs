@@ -57,12 +57,7 @@ pub enum Action {
 }
 
 #[derive(Serialize, Deserialize, Clone, Debug, PartialEq, JsonSchema)]
-pub struct QueryMsg {
-    pub query: Query,
-}
-
-#[derive(Serialize, Deserialize, Clone, Debug, PartialEq, JsonSchema)]
-pub enum Query {
+pub enum QueryMsg {
     GetGroupInfo {},
     GetMemberInfo { addr: String },
     GetCycleInfo { cycle: u32 },

@@ -1,0 +1,8 @@
+{
+  "action": {
+    "AddMember": {
+      "addr": "safro1newmember...",
+      "pseudo": "NewMember"
+    }
+  }
+}

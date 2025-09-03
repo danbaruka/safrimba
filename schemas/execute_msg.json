@@ -1,0 +1,273 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "ExecuteMsg",
+  "type": "object",
+  "required": [
+    "action"
+  ],
+  "properties": {
+    "action": {
+      "$ref": "#/definitions/Action"
+    }
+  },
+  "definitions": {
+    "Action": {
+      "oneOf": [
+        {
+          "type": "object",
+          "required": [
+            "AddMember"
+          ],
+          "properties": {
+            "AddMember": {
+              "type": "object",
+              "required": [
+                "addr"
+              ],
+              "properties": {
+                "addr": {
+                  "type": "string"
+                },
+                "pseudo": {
+                  "type": [
+                    "string",
+                    "null"
+                  ]
+                }
+              }
+            }
+          },
+          "additionalProperties": false
+        },
+        {
+          "type": "object",
+          "required": [
+            "RemoveMember"
+          ],
+          "properties": {
+            "RemoveMember": {
+              "type": "object",
+              "required": [
+                "addr"
+              ],
+              "properties": {
+                "addr": {
+                  "type": "string"
+                }
+              }
+            }
+          },
+          "additionalProperties": false
+        },
+        {
+          "type": "object",
+          "required": [
+            "UpdateProfile"
+          ],
+          "properties": {
+            "UpdateProfile": {
+              "type": "object",
+              "required": [
+                "addr"
+              ],
+              "properties": {
+                "addr": {
+                  "type": "string"
+                },
+                "pseudo": {
+                  "type": [
+                    "string",
+                    "null"
+                  ]
+                }
+              }
+            }
+          },
+          "additionalProperties": false
+        },
+        {
+          "type": "object",
+          "required": [
+            "InitiateStart"
+          ],
+          "properties": {
+            "InitiateStart": {
+              "type": "object"
+            }
+          },
+          "additionalProperties": false
+        },
+        {
+          "type": "object",
+          "required": [
+            "AutoStart"
+          ],
+          "properties": {
+            "AutoStart": {
+              "type": "object"
+            }
+          },
+          "additionalProperties": false
+        },
+        {
+          "type": "object",
+          "required": [
+            "ComputeDistributionCalendar"
+          ],
+          "properties": {
+            "ComputeDistributionCalendar": {
+              "type": "object"
+            }
+          },
+          "additionalProperties": false
+        },
+        {
+          "type": "object",
+          "required": [
+            "Deposit"
+          ],
+          "properties": {
+            "Deposit": {
+              "type": "object",
+              "required": [
+                "cycle"
+              ],
+              "properties": {
+                "cycle": {
+                  "type": "integer",
+                  "format": "uint32",
+                  "minimum": 0.0
+                }
+              }
+            }
+          },
+          "additionalProperties": false
+        },
+        {
+          "type": "object",
+          "required": [
+            "RecordLatePayment"
+          ],
+          "properties": {
+            "RecordLatePayment": {
+              "type": "object",
+              "required": [
+                "addr"
+              ],
+              "properties": {
+                "addr": {
+                  "type": "string"
+                }
+              }
+            }
+          },
+          "additionalProperties": false
+        },
+        {
+          "type": "object",
+          "required": [
+            "ApplyPenalty"
+          ],
+          "properties": {
+            "ApplyPenalty": {
+              "type": "object",
+              "required": [
+                "addr"
+              ],
+              "properties": {
+                "addr": {
+                  "type": "string"
+                }
+              }
+            }
+          },
+          "additionalProperties": false
+        },
+        {
+          "type": "object",
+          "required": [
+            "TriggerPayout"
+          ],
+          "properties": {
+            "TriggerPayout": {
+              "type": "object"
+            }
+          },
+          "additionalProperties": false
+        },
+        {
+          "type": "object",
+          "required": [
+            "DistributePenalties"
+          ],
+          "properties": {
+            "DistributePenalties": {
+              "type": "object"
+            }
+          },
+          "additionalProperties": false
+        },
+        {
+          "type": "object",
+          "required": [
+            "ViewCalendar"
+          ],
+          "properties": {
+            "ViewCalendar": {
+              "type": "object"
+            }
+          },
+          "additionalProperties": false
+        },
+        {
+          "type": "object",
+          "required": [
+            "RequestExit"
+          ],
+          "properties": {
+            "RequestExit": {
+              "type": "object"
+            }
+          },
+          "additionalProperties": false
+        },
+        {
+          "type": "object",
+          "required": [
+            "ProcessExit"
+          ],
+          "properties": {
+            "ProcessExit": {
+              "type": "object"
+            }
+          },
+          "additionalProperties": false
+        },
+        {
+          "type": "object",
+          "required": [
+            "ReplaceMember"
+          ],
+          "properties": {
+            "ReplaceMember": {
+              "type": "object",
+              "required": [
+                "new_addr",
+                "old_addr"
+              ],
+              "properties": {
+                "new_addr": {
+                  "type": "string"
+                },
+                "old_addr": {
+                  "type": "string"
+                }
+              }
+            }
+          },
+          "additionalProperties": false
+        }
+      ]
+    }
+  }
+}

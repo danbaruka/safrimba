@@ -1,7 +1,7 @@
 use cosmwasm_std::{entry_point, DepsMut, Env, MessageInfo, Response, StdResult, Deps, Binary, Addr, Uint128, Timestamp, BankMsg, Coin};
-use crate::msg::{InstantiateMsg, ExecuteMsg, QueryMsg, Action, Query as QueryAction};
+use crate::msg::{InstantiateMsg, ExecuteMsg, QueryMsg, Action};
 use crate::state::{TontineState, MemberProfile, DistributionMode, StartMode, StartConditionAuto};
-use crate::storage::{save_state, load_state, save_member_contribution, load_member_contribution, save_member_strikes, load_member_strikes};
+use crate::storage::{save_state, load_state, save_member_contribution, load_member_contribution};
 
 #[entry_point]
 pub fn instantiate(
@@ -335,8 +335,8 @@ pub fn query(
     msg: QueryMsg,
 ) -> StdResult<Binary> {
     let state = load_state(deps.storage)?;
-    match msg.query {
-        QueryAction::GetGroupInfo {} => {
+    match msg {
+        QueryMsg::GetGroupInfo {} => {
             let members: Vec<String> = state.members.iter().map(|a| a.to_string()).collect();
             let distribution_calendar: Vec<String> = state.distribution_calendar.iter().map(|a| a.to_string()).collect();
             let strikes: Vec<(String, u8)> = state.member_strikes.iter().map(|(addr, s)| (addr.to_string(), *s)).collect();
@@ -409,7 +409,7 @@ pub fn query(
             let resp = serde_json_wasm::to_vec(&dto).map_err(|e| cosmwasm_std::StdError::generic_err(e.to_string()))?;
             Ok(Binary(resp))
         }
-        QueryAction::GetMemberInfo { addr } => {
+        QueryMsg::GetMemberInfo { addr } => {
             let addr = deps.api.addr_validate(&addr)?;
             let profile_owned: Option<MemberProfile> = state.member_profiles.get(&addr).cloned();
             let strikes = state.member_strikes.get(&addr).cloned().unwrap_or(0);
@@ -425,7 +425,7 @@ pub fn query(
             let resp = serde_json_wasm::to_vec(&dto).map_err(|e| cosmwasm_std::StdError::generic_err(e.to_string()))?;
             Ok(Binary(resp))
         }
-        QueryAction::GetCycleInfo { cycle } => {
+        QueryMsg::GetCycleInfo { cycle } => {
             let recipient = state.distribution_calendar.get((cycle.saturating_sub(1)) as usize).cloned();
             let mut total = Uint128::zero();
             for member in &state.members {
@@ -439,10 +439,114 @@ pub fn query(
             let resp = serde_json_wasm::to_vec(&dto).map_err(|e| cosmwasm_std::StdError::generic_err(e.to_string()))?;
             Ok(Binary(resp))
         }
-        QueryAction::GetDistributionCalendar {} => {
+        QueryMsg::GetDistributionCalendar {} => {
             let cal: Vec<String> = state.distribution_calendar.iter().map(|a| a.to_string()).collect();
             let resp = serde_json_wasm::to_vec(&cal).map_err(|e| cosmwasm_std::StdError::generic_err(e.to_string()))?;
             Ok(Binary(resp))
         }
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use cosmwasm_std::testing::{mock_dependencies, mock_env, mock_info};
+    use cosmwasm_std::{coins, Uint128};
+    use crate::msg::{InstantiateMsg, QueryMsg};
+    use crate::state::{DistributionMode, StartMode};
+
+    fn get_default_instantiate_msg() -> InstantiateMsg {
+        InstantiateMsg {
+            name: "Test Tontine".to_string(),
+            symbol: "TT".to_string(),
+            admin: "admin".to_string(),
+            members: vec!["member1".to_string(), "member2".to_string()],
+            member_profiles: None,
+            contribution_amount: Uint128::from(1000u128),
+            total_cycles: 2,
+            cycle_duration: 86400, // 1 day
+            distribution_mode: DistributionMode::Fifo,
+            start_mode: StartMode::Manual,
+            start_condition_auto: None,
+            deposit_deadline: 3600, // 1 hour
+            grace_seconds: 300, // 5 minutes
+            late_penalty_percent: 10,
+            late_strike_limit: 3,
+            distribution_calendar: vec!["member1".to_string(), "member2".to_string()],
+            allow_member_exit: true,
+            allow_member_add: true,
+            early_withdrawal_penalty: 5,
+            forbid_overpay: false,
+            forbid_underpay: false,
+            max_members: 10,
+            caution_deposit: Uint128::from(100u128),
+        }
+    }
+
+    #[test]
+    fn test_instantiate_success() {
+        let mut deps = mock_dependencies(&coins(1000, "usaf"));
+        let env = mock_env();
+        let info = mock_info("creator", &coins(1000, "usaf"));
+        let msg = get_default_instantiate_msg();
+
+        let res = instantiate(deps.as_mut(), env, info, msg).unwrap();
+        assert_eq!(0, res.messages.len());
+    }
+
+    #[test]
+    fn test_query_group_info() {
+        let mut deps = mock_dependencies(&coins(1000, "usaf"));
+        let env = mock_env();
+        let info = mock_info("creator", &coins(1000, "usaf"));
+        let msg = get_default_instantiate_msg();
+
+        // Instantiate the contract
+        instantiate(deps.as_mut(), env.clone(), info, msg).unwrap();
+
+        // Query group info
+        let query_msg = QueryMsg::GetGroupInfo {};
+        let res = query(deps.as_ref(), env, query_msg).unwrap();
+        
+        // The response should be valid binary data
+        assert!(!res.is_empty());
+    }
+
+    #[test]
+    fn test_query_member_info() {
+        let mut deps = mock_dependencies(&coins(1000, "usaf"));
+        let env = mock_env();
+        let info = mock_info("creator", &coins(1000, "usaf"));
+        let msg = get_default_instantiate_msg();
+
+        // Instantiate the contract
+        instantiate(deps.as_mut(), env.clone(), info, msg).unwrap();
+
+        // Query member info
+        let query_msg = QueryMsg::GetMemberInfo {
+            addr: "member1".to_string(),
+        };
+        let res = query(deps.as_ref(), env, query_msg).unwrap();
+        
+        // The response should be valid binary data
+        assert!(!res.is_empty());
+    }
+
+    #[test]
+    fn test_query_distribution_calendar() {
+        let mut deps = mock_dependencies(&coins(1000, "usaf"));
+        let env = mock_env();
+        let info = mock_info("creator", &coins(1000, "usaf"));
+        let msg = get_default_instantiate_msg();
+
+        // Instantiate the contract
+        instantiate(deps.as_mut(), env.clone(), info, msg).unwrap();
+
+        // Query distribution calendar
+        let query_msg = QueryMsg::GetDistributionCalendar {};
+        let res = query(deps.as_ref(), env, query_msg).unwrap();
+        
+        // The response should be valid binary data
+        assert!(!res.is_empty());
     }
 }
