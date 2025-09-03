@@ -446,3 +446,107 @@ pub fn query(
         }
     }
 }
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use cosmwasm_std::testing::{mock_dependencies, mock_env, mock_info};
+    use cosmwasm_std::{coins, Uint128};
+    use crate::msg::{InstantiateMsg, QueryMsg};
+    use crate::state::{DistributionMode, StartMode};
+
+    fn get_default_instantiate_msg() -> InstantiateMsg {
+        InstantiateMsg {
+            name: "Test Tontine".to_string(),
+            symbol: "TT".to_string(),
+            admin: "admin".to_string(),
+            members: vec!["member1".to_string(), "member2".to_string()],
+            member_profiles: None,
+            contribution_amount: Uint128::from(1000u128),
+            total_cycles: 2,
+            cycle_duration: 86400, // 1 day
+            distribution_mode: DistributionMode::Fifo,
+            start_mode: StartMode::Manual,
+            start_condition_auto: None,
+            deposit_deadline: 3600, // 1 hour
+            grace_seconds: 300, // 5 minutes
+            late_penalty_percent: 10,
+            late_strike_limit: 3,
+            distribution_calendar: vec!["member1".to_string(), "member2".to_string()],
+            allow_member_exit: true,
+            allow_member_add: true,
+            early_withdrawal_penalty: 5,
+            forbid_overpay: false,
+            forbid_underpay: false,
+            max_members: 10,
+            caution_deposit: Uint128::from(100u128),
+        }
+    }
+
+    #[test]
+    fn test_instantiate_success() {
+        let mut deps = mock_dependencies(&coins(1000, "usaf"));
+        let env = mock_env();
+        let info = mock_info("creator", &coins(1000, "usaf"));
+        let msg = get_default_instantiate_msg();
+
+        let res = instantiate(deps.as_mut(), env, info, msg).unwrap();
+        assert_eq!(0, res.messages.len());
+    }
+
+    #[test]
+    fn test_query_group_info() {
+        let mut deps = mock_dependencies(&coins(1000, "usaf"));
+        let env = mock_env();
+        let info = mock_info("creator", &coins(1000, "usaf"));
+        let msg = get_default_instantiate_msg();
+
+        // Instantiate the contract
+        instantiate(deps.as_mut(), env.clone(), info, msg).unwrap();
+
+        // Query group info
+        let query_msg = QueryMsg::GetGroupInfo {};
+        let res = query(deps.as_ref(), env, query_msg).unwrap();
+        
+        // The response should be valid binary data
+        assert!(!res.is_empty());
+    }
+
+    #[test]
+    fn test_query_member_info() {
+        let mut deps = mock_dependencies(&coins(1000, "usaf"));
+        let env = mock_env();
+        let info = mock_info("creator", &coins(1000, "usaf"));
+        let msg = get_default_instantiate_msg();
+
+        // Instantiate the contract
+        instantiate(deps.as_mut(), env.clone(), info, msg).unwrap();
+
+        // Query member info
+        let query_msg = QueryMsg::GetMemberInfo {
+            addr: "member1".to_string(),
+        };
+        let res = query(deps.as_ref(), env, query_msg).unwrap();
+        
+        // The response should be valid binary data
+        assert!(!res.is_empty());
+    }
+
+    #[test]
+    fn test_query_distribution_calendar() {
+        let mut deps = mock_dependencies(&coins(1000, "usaf"));
+        let env = mock_env();
+        let info = mock_info("creator", &coins(1000, "usaf"));
+        let msg = get_default_instantiate_msg();
+
+        // Instantiate the contract
+        instantiate(deps.as_mut(), env.clone(), info, msg).unwrap();
+
+        // Query distribution calendar
+        let query_msg = QueryMsg::GetDistributionCalendar {};
+        let res = query(deps.as_ref(), env, query_msg).unwrap();
+        
+        // The response should be valid binary data
+        assert!(!res.is_empty());
+    }
+}
